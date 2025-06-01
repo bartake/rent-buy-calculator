@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent vs. Buy Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>Rent vs. Buy Calculator</h1>
+      <p class="subtitle">Compare monthly affordability and long‑term net worth</p>
+      <div class="header-actions">
+        <div class="mode-toggle">
+          <button class="mode-btn active" data-mode="simple">Simple</button>
+          <button class="mode-btn" data-mode="advanced">Advanced</button>
+        </div>
+        <button class="pdf-btn" id="downloadPdfBtn" title="Download PDF report">
+          <span class="pdf-btn-icon">↓</span> Download PDF
+        </button>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- INPUTS -->
+      <section class="panel inputs-panel">
+        <h2>Inputs</h2>
+
+        <!-- Home Purchase -->
+        <div class="input-section">
+          <h3 data-toggle="home">Home Purchase</h3>
+          <div class="input-grid" id="home-inputs">
+            <div class="input-group">
+              <label>Home Price ($)</label>
+              <input type="number" id="homePrice" value="400000" min="10000" step="1000">
+            </div>
+            <div class="input-group">
+              <label>Down Payment (%)</label>
+              <input type="number" id="downPaymentPct" value="20" min="0" max="100" step="1">
+            </div>
+            <div class="input-group">
+              <label>Mortgage Rate (%)</label>
+              <input type="number" id="mortgageRate" value="7" min="0" max="20" step="0.125">
+            </div>
+            <div class="input-group">
+              <label>Loan Term (years)</label>
+              <select id="loanTerm">
+                <option value="15">15</option>
+                <option value="30" selected>30</option>
+              </select>
+            </div>
+            <div class="input-group input-group-split">
+              <label>Property Tax</label>
+              <div class="split-inputs">
+                <div class="split-field">
+                  <input type="number" id="propertyTaxAmt" value="" min="0" data-paired="propertyTaxPct">
+                  <span class="split-unit">$/year</span>
+                </div>
+                <span class="split-or">or</span>
+                <div class="split-field">
+                  <input type="number" id="propertyTaxPct" value="1.2" min="0" max="5" step="0.1" data-paired="propertyTaxAmt">
+                  <span class="split-unit">%/year</span>
+                </div>
+              </div>
+            </div>
+            <div class="input-group input-group-split">
+              <label>Insurance</label>
+              <div class="split-inputs">
+                <div class="split-field">
+                  <input type="number" id="insuranceAmt" value="" min="0" data-paired="insurancePct">
+                  <span class="split-unit">$/year</span>
+                </div>
+                <span class="split-or">or</span>
+                <div class="split-field">
+                  <input type="number" id="insurancePct" value="0.4" min="0" max="2" step="0.05" data-paired="insuranceAmt">
+                  <span class="split-unit">%/year</span>
+                </div>
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Property Tax Increase (%/year)</label>
+              <input type="number" id="propertyTaxIncrease" value="3" min="0" max="10" step="0.5">
+            </div>
+            <div class="input-group">
+              <label>Insurance Increase (%/year)</label>
+              <input type="number" id="insuranceIncrease" value="3" min="0" max="10" step="0.5">
+            </div>
+            <div class="input-group simple-only">
+              <label>HOA ($/month)</label>
+              <input type="number" id="hoa" value="0" min="0" step="25">
+            </div>
+            <div class="input-group simple-only">
+              <label>Closing Costs (%)</label>
+              <input type="number" id="closingCostsPct" value="3" min="0" max="10" step="0.5">
+            </div>
+            <div class="input-group simple-only">
+              <label>Selling Costs (%)</label>
+              <input type="number" id="sellingCostsPct" value="7" min="0" max="15" step="0.5">
+            </div>
+            <div class="input-group">
+              <label>Years to keep house</label>
+              <input type="number" id="yearsToKeep" value="10" min="1" max="30" step="1">
+            </div>
+            <!-- Advanced home inputs -->
+            <div class="input-group advanced-only hidden">
+              <label>Maintenance (% per year)</label>
+              <input type="number" id="maintenancePct" value="1" min="0" max="5" step="0.25">
+            </div>
+            <div class="input-group advanced-only hidden">
+              <label>Closing Costs ($)</label>
+              <input type="number" id="closingCostsAmt" value="" placeholder="Auto (3%)" min="0">
+            </div>
+            <div class="input-group advanced-only hidden">
+              <label>Capital Reserve ($/year)</label>
+              <input type="number" id="capitalReserve" value="0" min="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- Renting -->
+        <div class="input-section">
+          <h3 data-toggle="rent">Renting</h3>
+          <div class="input-grid" id="rent-inputs">
+            <div class="input-group">
+              <label>Monthly Rent ($)</label>
+              <input type="number" id="monthlyRent" value="2200" min="0" step="50">
+            </div>
+            <div class="input-group simple-only">
+              <label>Rent Increase (% per year)</label>
+              <input type="number" id="rentGrowthPct" value="3" min="0" max="15" step="0.5">
+            </div>
+            <div class="input-group advanced-only hidden">
+              <label>Renters Insurance ($/month)</label>
+              <input type="number" id="rentersInsurance" value="20" min="0">
+            </div>
+            <div class="input-group advanced-only hidden">
+              <label>Other Monthly Fees ($)</label>
+              <input type="number" id="rentOtherFees" value="0" min="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- Growth & Investment (Simple) / Opportunity Cost (Advanced) -->
+        <div class="input-section">
+          <h3 data-toggle="growth">Growth & Investment</h3>
+          <div class="input-grid" id="growth-inputs">
+            <div class="input-group">
+              <label>Home Appreciation (% per year)</label>
+              <input type="number" id="homeAppreciation" value="3" min="-5" max="15" step="0.5">
+            </div>
+            <div class="input-group full-width">
+              <label class="checkbox-label">
+                <input type="checkbox" id="downPaymentInvested">
+                Renter invests down payment & closing costs
+              </label>
+              <span class="input-hint">If unchecked, the renter keeps this cash (no growth). Most renters don't invest it.</span>
+            </div>
+            <div class="input-group investment-return-group hidden">
+              <label>Investment Return (% per year)</label>
+              <input type="number" id="investmentReturn" value="6" min="0" max="15" step="0.5">
+            </div>
+            <div class="input-group advanced-only hidden">
+              <label>Inflation Rate (%)</label>
+              <input type="number" id="inflationRate" value="2.5" min="0" max="10" step="0.5">
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced: Tax -->
+        <div class="input-section advanced-only hidden">
+          <h3 data-toggle="tax">Tax Assumptions</h3>
+          <div class="input-grid" id="tax-inputs">
+            <div class="input-group">
+              <label>Federal Tax Rate (%)</label>
+              <input type="number" id="federalTaxRate" value="24" min="0" max="37">
+            </div>
+            <div class="input-group">
+              <label>State Tax Rate (%)</label>
+              <input type="number" id="stateTaxRate" value="5" min="0" max="15">
+            </div>
+            <div class="input-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="itemizeDeductions" checked>
+                Itemize deductions (mortgage interest & property tax)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced: Moving Costs -->
+        <div class="input-section advanced-only hidden">
+          <h3 data-toggle="moving">Moving Costs</h3>
+          <div class="input-grid">
+            <div class="input-group">
+              <label>Buyer Moving Costs ($)</label>
+              <input type="number" id="buyerMovingCosts" value="2000" min="0">
+            </div>
+            <div class="input-group">
+              <label>Renter Moving Costs ($)</label>
+              <input type="number" id="renterMovingCosts" value="2000" min="0">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- OUTPUTS -->
+      <section class="panel outputs-panel">
+        <h2>Results</h2>
+
+        <!-- Headline Result -->
+        <div class="headline-result" id="headlineResult">
+          <div class="headline-text" id="headlineText">Calculate to see results</div>
+          <div class="headline-detail" id="headlineDetail"></div>
+        </div>
+
+        <!-- Monthly Comparison -->
+        <div class="output-section">
+          <h3>Monthly Comparison</h3>
+          <div class="output-grid" id="monthlyOutputs">
+            <div class="output-card">
+              <span class="output-label">Monthly Cost to Own</span>
+              <span class="output-value" id="monthlyOwnCost">—</span>
+            </div>
+            <div class="output-card">
+              <span class="output-label">Monthly Cost to Rent</span>
+              <span class="output-value" id="monthlyRentCost">—</span>
+            </div>
+            <div class="output-card highlight">
+              <span class="output-label">Monthly Difference</span>
+              <span class="output-value" id="monthlyDifference">—</span>
+            </div>
+          </div>
+          <details class="breakdown-details">
+            <summary>Ownership cost breakdown</summary>
+            <div class="breakdown-list" id="ownershipBreakdown"></div>
+          </details>
+        </div>
+
+        <!-- Wealth Comparison -->
+        <div class="output-section">
+          <h3>Net Worth After <span id="yearsLabel">10</span> Years</h3>
+          <div class="output-grid wealth-grid">
+            <div class="output-card buy-result">
+              <span class="output-label">
+                If you buy
+                <span class="info-icon info-icon-modal" id="buyerNetWorthInfoIcon" tabindex="0" aria-label="View calculation breakdown">
+                  <span class="info-symbol">ⓘ</span>
+                </span>
+              </span>
+              <span class="output-value" id="buyerNetWorth">—</span>
+              <span class="output-sublabel" id="buyerNetWorthDetail"></span>
+            </div>
+            <div class="output-card rent-result">
+              <span class="output-label">
+                If you rent
+                <span class="info-icon info-icon-modal" id="renterNetWorthInfoIcon" tabindex="0" aria-label="View calculation breakdown">
+                  <span class="info-symbol">ⓘ</span>
+                </span>
+              </span>
+              <span class="output-value" id="renterNetWorth">—</span>
+              <span class="output-sublabel" id="renterNetWorthDetail"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Net Worth by Year (Table / Graph) -->
+        <div class="output-section chart-section">
+          <h3>Net Worth by Year</h3>
+          <div class="view-tabs">
+            <button class="view-tab active" data-view="table">Table</button>
+            <button class="view-tab" data-view="graph">Graph</button>
+          </div>
+          <div class="view-content view-table" id="netWorthTableView">
+            <div class="table-container">
+              <table class="net-worth-table" id="netWorthTable">
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>If you buy</th>
+                    <th>If you rent</th>
+                  </tr>
+                </thead>
+                <tbody id="netWorthTableBody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="view-content view-graph hidden" id="netWorthGraphView">
+            <div class="chart-container">
+              <svg id="rentVsBuyChart" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid meet">
+                <g id="chartContent"></g>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cumulative Costs -->
+        <div class="output-section">
+          <h3>Cumulative Costs</h3>
+          <div class="output-grid">
+            <div class="output-card">
+              <span class="output-label">
+                Total Spent Renting
+                <span class="info-icon info-icon-modal" id="totalRentInfoIcon" tabindex="0" aria-label="View calculation breakdown">
+                  <span class="info-symbol">ⓘ</span>
+                </span>
+              </span>
+              <span class="output-value" id="totalRentCost">—</span>
+            </div>
+            <div class="output-card">
+              <span class="output-label">
+                Unrecoverable Cost of Owning
+                <span class="info-icon info-icon-modal" id="unrecoverableInfoIcon" tabindex="0" aria-label="View calculation breakdown">
+                  <span class="info-symbol">ⓘ</span>
+                </span>
+              </span>
+              <span class="output-value" id="unrecoverableCost">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Break-even -->
+        <div class="output-section">
+          <h3>Break-even</h3>
+          <div class="output-grid">
+            <div class="output-card">
+              <span class="output-label">Break-even Year</span>
+              <span class="output-value" id="breakEvenYear">—</span>
+            </div>
+            <div class="output-card">
+              <span class="output-label">Upfront Cash Required to Buy</span>
+              <span class="output-value" id="upfrontCash">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sensitivity -->
+        <div class="output-section">
+          <h3>Sensitivity</h3>
+          <p class="sensitivity-intro">How long you stay matters most. If you leave earlier:</p>
+          <div class="sensitivity-table" id="sensitivityTable">
+            <table>
+              <thead>
+                <tr>
+                  <th>Years</th>
+                  <th>Winner</th>
+                  <th>Advantage</th>
+                </tr>
+              </thead>
+              <tbody id="sensitivityBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>For illustrative purposes only. Does not constitute financial advice. Consult a professional for your situation.</p>
+    </footer>
+  </div>
+
+  <!-- Rent Calculation Modal -->
+  <div class="modal-overlay" id="rentCalcModal" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Total Spent Renting – Calculation</h3>
+        <button class="modal-close" id="rentCalcModalClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="rentCalcModalBody">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Unrecoverable Cost Modal -->
+  <div class="modal-overlay" id="unrecoverableCalcModal" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Unrecoverable Cost of Owning – Calculation</h3>
+        <button class="modal-close" id="unrecoverableCalcModalClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="unrecoverableCalcModalBody">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- If You Buy Modal -->
+  <div class="modal-overlay" id="buyerCalcModal" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Net Worth If You Buy – Calculation</h3>
+        <button class="modal-close" id="buyerCalcModalClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="buyerCalcModalBody">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- If You Rent Modal -->
+  <div class="modal-overlay" id="renterCalcModal" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Net Worth If You Rent – Calculation</h3>
+        <button class="modal-close" id="renterCalcModalClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="renterCalcModalBody">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="calculator.js"></script>
+</body>
+</html>
