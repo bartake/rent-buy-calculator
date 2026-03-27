@@ -2,6 +2,12 @@
 
 A comprehensive rent vs. buy calculator that compares **monthly affordability** and **long-term net worth** under realistic assumptions.
 
+## Screenshots
+
+Simple mode — inputs, monthly comparison, net worth table, and sensitivity:
+
+![Simple mode — inputs and results](docs/screenshot-simple.png)
+
 ## Features
 
 - **Simple mode** — MVP inputs: home price, down payment, mortgage, rent, growth rates, time horizon
